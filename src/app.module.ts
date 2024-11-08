@@ -1,39 +1,21 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { DataSource } from 'typeorm';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import databaseConfig from './config/db/db.config';
+import { UsersModule } from './modules/identity/users/users.module';
+import { PostsModule } from './modules/posts/posts.module';
+import { AuthModule } from './modules/identity/auth/auth.module';
+import { RolesModule } from './modules/identity/roles/roles.module';
+import { TagsModule } from './modules/tags/tags.module';
+import { DatabaseProviderModule } from './modules/db/database.module';
+import { RefreshTokensModule } from './modules/identity/refresh-tokens/refresh-tokens.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'mysql',
-        host: configService.get('DATABASE_HOST'),
-        port: +configService.get('DATABASE_PORT'),
-        username: configService.get('DATABASE_USERNAME'),
-        password: configService.get('DATABASE_PASSWORD'),
-        database: configService.get('DATABASE_NAME'),
-        entities: configService.get('entities'),
-        migrations: configService.get('migrations'),
-        synchronize: true,
-      }),
-      dataSourceFactory: async (options) => {
-        try {
-          const dataSource = await new DataSource(options!).initialize();
-          console.log('Database connected successfully');
-          return dataSource;
-        } catch (error) {
-          console.log('Error connecting to database');
-          throw error;
-        }
-      },
-    }),
-    ConfigModule.forRoot({
-      load: [databaseConfig],
-    }),
+    DatabaseProviderModule,
+    UsersModule,
+    PostsModule,
+    AuthModule,
+    RolesModule,
+    TagsModule,
+    RefreshTokensModule,
   ],
 })
 export class AppModule {}
