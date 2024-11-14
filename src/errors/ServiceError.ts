@@ -18,11 +18,15 @@ export default class ServiceError extends Error {
     if (realError) console.log(realError);
   }
 
-  static UserAlreadyExists(email?: string) {
-    const message = email
-      ? `User with email '${email}' already exists`
-      : 'User already exists';
+  static UserAlreadyExists(email: string) {
+    const message = `User with email '${email}' already exists`;
 
     return new ServiceError('USER_EXISTS', message);
+  }
+
+  static UserAlreadyHasThisRole(email: string, role: string) {
+    const message = `User '${email}' already has ${role} role`;
+
+    return new ServiceError('ROLE_EXISTS_ON_USER', message);
   }
 }
