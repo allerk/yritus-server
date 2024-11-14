@@ -2,13 +2,14 @@ import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { Post } from '../../../posts/entities/post.entity';
 import { Role } from '../../roles/entities/role.entity';
 import { BaseEntity } from '../../../../common/entity/BaseEntity';
+import { RefreshToken } from '../../refresh-tokens/entities/refresh-token.entity';
 
 @Entity()
 export class User extends BaseEntity {
   @Column()
   username: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
@@ -40,4 +41,9 @@ export class User extends BaseEntity {
     },
   })
   roles?: Role[];
+
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user, {
+    onDelete: 'CASCADE',
+  })
+  refreshTokens: RefreshToken[];
 }
