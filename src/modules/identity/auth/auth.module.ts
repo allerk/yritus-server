@@ -12,8 +12,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
 import { RolesModule } from '../roles/roles.module';
+import { RefreshTokensModule } from '../refresh-tokens/refresh-tokens.module';
 
-config({ path: path.resolve(__dirname + '../../../../env/.env.creds') });
+config({ path: path.resolve(__dirname + '../../../../../env/.env.creds') });
 
 @Module({
   controllers: [AuthController],
@@ -29,10 +30,11 @@ config({ path: path.resolve(__dirname + '../../../../env/.env.creds') });
     TypeOrmModule.forFeature([Role]),
     UsersModule,
     RolesModule,
+    RefreshTokensModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_TOKEN,
-      signOptions: { expiresIn: '60s' },
+      // signOptions: { expiresIn: '60s' },
     }),
   ],
   exports: [AuthService],
