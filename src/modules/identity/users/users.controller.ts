@@ -10,6 +10,6 @@ export class UsersController {
   @Roles(ERole.Admin)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOneById(id);
+    return this.usersService.findOneId(id);
   }
 }

@@ -1,34 +1,34 @@
 import { Injectable } from '@nestjs/common';
-import { AuthService } from '../identity/auth/auth.service';
-import { RegisterDto } from '../identity/auth/dto/register.dto';
 import { RolesService } from '../identity/roles/roles.service';
 import { ERole } from '../identity/auth/enums/role.enum';
 import { CreateRoleDto } from '../identity/roles/dto/create-role.dto';
+import { UsersService } from '../identity/users/users.service';
+import { CreateUserDto } from '../identity/users/dto/create-user.dto';
 
 @Injectable()
 export class Seeder {
   constructor(
-    private readonly authService: AuthService,
-    private readonly roleService: RolesService,
+    private readonly rolesService: RolesService,
+    private readonly usersService: UsersService,
   ) {}
 
   async seedIdentity() {
-    const user: RegisterDto = {
+    const user: CreateUserDto = {
       username: 'Admin',
       password: 'FooBar1!',
-      email: 'admin@yritus.ee',
+      email: 'admin2@yritus.ee',
       phone: '+37255969946',
     };
 
     try {
-      const createdUser = await this.authService.register(user);
+      const createdUser = this.usersService.create(user);
       console.log(`User with ${user.email} email was created successfully!`);
       console.log(createdUser);
 
-      const role = await this.roleService.findOneByName(ERole.Admin);
-      await this.roleService.assignRole(createdUser.id, {
-        name: role.name,
-      } as CreateRoleDto);
+      const rolesDtos: CreateRoleDto[] = [{ name: ERole.Admin }];
+      for (const roleDto of rolesDtos) {
+        await this.rolesService.assignRole(createdUser.id, roleDto);
+      }
       console.log('Successfully completed seeding identity...');
     } catch (error) {
       console.error('Error during user creation or role assignment:', error);

@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './entities/role.entity';
 import { UsersService } from '../users/users.service';
+import ServiceError from '../../../errors/ServiceError';
 
 @Injectable()
 export class RolesService {
@@ -20,28 +21,26 @@ export class RolesService {
   async assignRole(userId: string, providedRole: CreateRoleDto) {
     const user = await this.usersService.findOneId(userId);
 
-    const role = await this.rolesRepository.findOneBy({
+    const role = await this.findOneBy({
       name: providedRole?.name,
     });
 
-    if (user && role) {
-      const hasRole = user.roles!.some((userRole) => userRole.id === role.id);
+    const hasRole = user.roles!.some((userRole) => userRole.id === role.id);
 
-      if (!hasRole) {
-        user.roles!.push(role);
-      } else {
-        return `User ${user.email} already has ${role.name} role`;
-      }
-
-      return await this.usersService.create(user);
+    if (hasRole) {
+      throw ServiceError.UserAlreadyHasThisRole(user.email, role.name);
     }
 
-    throw new Error('User or Role not found');
+    return await this.usersService.addRoleToUser(user, role);
   }
 
-  async findOneByName(name: string): Promise<Role> {
-    const role = await this.rolesRepository.findOneBy({ name: name });
-    if (role) return role;
-    throw new Error('Role not found');
+  async findOneBy(conditions: object): Promise<Role> {
+    const role = await this.rolesRepository.findOneBy(conditions);
+    if (!role) {
+      throw new NotFoundException(
+        `Role not found by this conditions ${conditions}`,
+      );
+    }
+    return role;
   }
 }
