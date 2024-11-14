@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SeederModule } from '../modules/seeder/seeder.module';
 import { Seeder } from '../modules/seeder/seeder.provider';
-import initializeConfig from '../config/initializer/initialize.config';
+import initializeConfig from '../config/app/app.config';
 
 export class AppDataHelper {
   public static async SetupData() {
